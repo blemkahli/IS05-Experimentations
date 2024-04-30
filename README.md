@@ -13,7 +13,7 @@ L'hôpital Benjamin Franklin recherche une méthode économe pour trier des réf
 - [X] Générer une grande liste de références aléatoires (references.txt)
 - [ ] Bash : tri par selection et tri par tas. Bilal
 - [ ] C : tri par selection et tri par tas. Rosalie
-- [ ] Python : tri par selection et tri par tas. Julie
+- [X] Python : tri par selection et tri par tas. Julie
 
 Rapport sur le drive.
 
