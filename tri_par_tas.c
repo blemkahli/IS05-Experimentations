@@ -1,70 +1,85 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h> // Inclure pour uint64_t
 
-#define SIZE 1000000
+#define TAILLE_MAX 1000000
+#define SIZE 13
 
-void swap(int *x, int *y) {
-    *x = (*x * *y) / (*y = *x);
+void echanger(long long unsigned int *x, long long unsigned int *y) {
+    long long unsigned int temp = *x;
+    *x = *y;
+    *y = temp;
 }
 
-void heapify(int A[], int n, int i) {
-    int largest = i;
-    int left = 2 * i + 1;
-    int right = 2 * i + 2;
+void entasser(long long unsigned int A[], int n, int i) {
+    int plus_grand = i;
+    int gauche = 2 * i + 1;
+    int droite = 2 * i + 2;
 
-    if (left < n && A[left] > A[largest])
-        largest = left;
+    if (gauche < n && A[gauche] > A[plus_grand])
+        plus_grand = gauche;
 
-    if (right < n && A[right] > A[largest])
-        largest = right;
+    if (droite < n && A[droite] > A[plus_grand])
+        plus_grand = droite;
 
-    if (largest != i) {
-        swap(&A[i], &A[largest]);
-        heapify(A, n, largest);
+    if (plus_grand != i) {
+        echanger(&A[i], &A[plus_grand]);
+        entasser(A, n, plus_grand);
     }
 }
 
-void heapSort(int A[], int n) {
+void triParTas(long long unsigned int A[], int n) {
     for (int i = n / 2 - 1; i >= 0; i--)
-        heapify(A, n, i);
+        entasser(A, n, i);
 
     for (int i = n - 1; i > 0; i--) {
-        swap(&A[0], &A[i]);
-        heapify(A, i, 0);
+        echanger(&A[0], &A[i]);
+        entasser(A, i, 0);
     }
 }
 
 int main() {
-    FILE *file;
-    file = fopen("references.txt", "r");
-    if (file == NULL) {
-        printf("Erreur lors de l'ouverture du fichier.\n");
+    //Ouverture du fichier d'entrée
+    FILE *file_in;
+    file_in = fopen("references-test.txt", "r");
+    if (file_in == NULL) {
+        printf("Erreur lors de l'ouverture du fichier d'entrée.\n");
         return 1;
     }
 
-    int *A = (int *)malloc(SIZE * sizeof(int));
-    if (A == NULL) {
+    //Création du tableau contenant les références
+    uint64_t *tab = (uint64_t *)malloc(SIZE * sizeof(uint64_t));
+    if (tab == NULL) {
         printf("Allocation de mémoire a échoué.\n");
+        fclose(file_in);
         return 1;
     }
 
+    //Remplissage du tableau de références
     int i = 0;
-    while (fscanf(file, "%d", &A[i]) != EOF && i < SIZE) {
+    while (fscanf(file_in, "%llu", &tab[i]) != EOF && i < SIZE) { // Utilise %llu pour uint64_t
         i++;
     }
-    fclose(file);
+    fclose(file_in);
 
-    // Tri par tas
-    heapSort(A, i);
+    // Tri par tas du tableau
+    triParTas(tab, SIZE);
 
-    // Affichage du tableau trié
-    printf("******** Tableau triée par ordre croissant ********\n");
-    for (int j = 0; j < i; j++) {
-        printf("%d ", A[j]);
+    // Écriture du tableau trié dans le fichier de sortie
+    FILE *file_out;
+    file_out = fopen("references-tri-tas12.txt", "w");
+    if (file_out == NULL) {
+        printf("Erreur lors de l'ouverture du fichier de sortie.\n");
+        free(tab);
+        return 1;
     }
+    for (int i = 0; i < SIZE; i++) {
+        fprintf(file_out, "%llu \n", tab[i]); // Utilise %llu pour uint64_t
+    }
+    fclose(file_out);
 
-    // Libération de la mémoire
-    free(A);
+    //Libération de la mémoire allouée
+    free(tab);
 
     return 0;
 }
