@@ -1,54 +1,70 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h> // Inclure pour uint64_t
 
-#define SIZE 1000000
+#define SIZE 13 //pour le test
 
-void selectionSort(int arr[], int n) {
-    int i, j, minIndex, tmp;
-    for (i = 0; i < n - 1; i++) {
-        minIndex = i;
-        for (j = i + 1; j < n; j++) {
-            if (arr[j] < arr[minIndex])
-                minIndex = j;
+void TriParSelection(uint64_t *tab, int n){ //utilisation de pointeurs
+    uint64_t *fin = tab + n;
+
+    for (uint64_t *i = tab; i < fin - 1; i++) {
+        uint64_t *min = i;
+        for (uint64_t *j = i + 1; j < fin; j++) {
+            if (*j < *min)
+                min = j;
         }
-        if (minIndex != i) {
-            tmp = arr[i];
-            arr[i] = arr[minIndex];
-            arr[minIndex] = tmp;
+        if (min != i) {
+            uint64_t tmp = *i;
+            *i = *min;
+            *min = tmp;
         }
     }
 }
 
-int main() {
-    FILE *file;
-    file = fopen("references.txt", "r");
-    if (file == NULL) {
-        printf("Erreur lors de l'ouverture du fichier.\n");
+int main()
+{
+    //Ouverture du fichier d'entrée
+    FILE *file_in;
+    file_in = fopen("references-test.txt", "r");
+    if (file_in == NULL) {
+        printf("Erreur lors de l'ouverture du fichier d'entrée.\n");
         return 1;
     }
 
-    int *tab = (int *)malloc(SIZE * sizeof(int));
+    //Création du tableau contenant les références
+    uint64_t *tab = (uint64_t *)malloc(SIZE * sizeof(uint64_t));
     if (tab == NULL) {
         printf("Allocation de mémoire a échoué.\n");
+        fclose(file_in);
         return 1;
     }
 
+    //Remplissage du tableau de références
     int i = 0;
-    while (fscanf(file, "%d", &tab[i]) != EOF && i < SIZE) {
+    while (fscanf(file_in, "%llu", &tab[i]) != EOF && i < SIZE) { // Utilise %llu pour uint64_t
         i++;
     }
-    fclose(file);
+    fclose(file_in);
 
-    // Appliquer le tri par sélection
-    selectionSort(tab, SIZE);
+    // Tri par sélection du tableau
+    TriParSelection(tab, SIZE);
 
-    // Afficher le tableau trié
-    printf("******** tableau triée par ordre croissant ********\n");
-    for (i = 0; i < SIZE; i++)
-        printf("%d ", tab[i]);
+    // Écriture du tableau trié dans le fichier de sortie
+    FILE *file_out;
+    file_out = fopen("references-tri-selection7.txt", "w");
+    if (file_out == NULL) {
+        printf("Erreur lors de l'ouverture du fichier de sortie.\n");
+        free(tab);
+        return 1;
+    }
+    for (int i = 0; i < SIZE; i++) {
+        fprintf(file_out, "%llu \n", tab[i]); // Utilise %llu pour uint64_t
+    }
+    fclose(file_out);
 
-    // Libérer la mémoire allouée pour le tableau
+    //Libération de la mémoire allouée
     free(tab);
 
     return 0;
 }
+
